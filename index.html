@@ -1,16 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  <meta charset="UTF-8">
+  <title>📚 Bibliothèque numérique CDA</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { margin: 5px; padding: 8px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    button { cursor: pointer; }
+  </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>
-        We are using Node.js <span id="node-version"></span>,
-        Chromium <span id="chrome-version"></span>,
-        and Electron <span id="electron-version"></span>.
-    </p>
+  <div class="form-container">
+    <h1>📚 Bibliothèque numérique</h1>
+
+    <input type="text" id="titre" placeholder="Titre du livre"><br>
+    <input type="text" id="auteur" placeholder="Auteur"><br>
+    <input type="file" id="fichier" accept="application/pdf"><br>
+    <button onclick="ajouterLivre()">Ajouter</button>
+
+    <br><br>
+    <input type="text" id="search" placeholder="🔍 Rechercher..." onkeyup="rechercherLivre()">
+
+    <ul id="liste"></ul>
+
+    <script type="module" src="renderer.js"></script>
+  </div>
+  
 </body>
 </html>
