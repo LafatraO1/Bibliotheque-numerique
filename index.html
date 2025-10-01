@@ -2,31 +2,20 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>📚 Bibliothèque numérique CDA</title>
+  <title>Bibliothèque Numérique</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, button { margin: 5px; padding: 8px; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
-    button { cursor: pointer; }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    h1 { text-align: center; }
+    #searchInput { width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px; }
+    .livre { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+    .livre h3 { margin: 0; color: #0077cc; }
+    .livre h3:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h1>📚 Bibliothèque numérique</h1>
-
-    <input type="text" id="titre" placeholder="Titre du livre"><br>
-    <input type="text" id="auteur" placeholder="Auteur"><br>
-    <input type="file" id="fichier" accept="application/pdf"><br>
-    <button onclick="ajouterLivre()">Ajouter</button>
-
-    <br><br>
-    <input type="text" id="search" placeholder="🔍 Rechercher..." onkeyup="rechercherLivre()">
-
-    <ul id="liste"></ul>
-
-    <script type="module" src="renderer.js"></script>
-  </div>
-  
+  <h1>📚 Bibliothèque Numérique CDA</h1>
+  <input type="text" id="searchInput" placeholder="🔍 Rechercher un livre...">
+  <div id="results"></div>
+  <script src="renderer.js"></script>
 </body>
 </html>
