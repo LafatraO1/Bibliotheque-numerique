@@ -4,6 +4,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let livres = await window.electronAPI.getBooks()
 
+  function highlight(text, query) {
+    if (!query) return text
+    const regex = new RegExp(`(${query})`, "gi")
+    return text.replace(regex, "<span class='highlight'>$1</span>")
+  }
+
   function afficherResultats(query = "") {
     resultsDiv.innerHTML = ""
     const lowerQuery = query.toLowerCase()
@@ -21,7 +27,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     filtres.forEach(livre => {
       const div = document.createElement("div")
       div.className = "livre"
-      div.innerHTML = `<h3 class="titre" data-file="${livre.fichier}">${livre.titre}</h3>`
+      div.innerHTML = `
+        <h3 class="titre" data-file="${livre.fichier}">
+          ${highlight(livre.titre, query)}
+        </h3>
+      `
       div.querySelector(".titre").addEventListener("click", () => {
         window.open(livre.fichier, "_blank")
       })
