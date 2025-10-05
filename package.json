@@ -9,8 +9,17 @@
   "keywords": [],
   "author": "Lafatra Hariliva",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "electron": "^38.1.2"
-  }
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.4.149",
+    "sqlite3": "^5.1.7"
+  },
+  "description": ""
 }
