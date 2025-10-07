@@ -15,22 +15,7 @@ function writeData(file, data) {
   fs.writeFileSync(`./data/${file}`, JSON.stringify(data, null, 2));
 }
 
-// UTILISATEURS
-app.get('/utilisateurs', (req, res) => {
-  const users = readData('users.json');
-  res.json(users);
-});
-
-app.post('/utilisateurs', (req, res) => {
-  const users = readData('users.json');
-  const newUser = req.body;
-  newUser.id_u = users.length + 1;
-  users.push(newUser);
-  writeData('users.json', users);
-  res.json({ message: 'Utilisateur ajouté', user: newUser });
-});
-
-// DOCUMENTS
+// DOCUMENTS CRUD
 app.get('/documents', (req, res) => {
   const docs = readData('documents.json');
   res.json(docs);
@@ -39,42 +24,39 @@ app.get('/documents', (req, res) => {
 app.post('/documents', (req, res) => {
   const docs = readData('documents.json');
   const newDoc = req.body;
-  newDoc.id_d = docs.length + 1;
+  newDoc.id_d = docs.length ? docs[docs.length - 1].id_d + 1 : 1;
   docs.push(newDoc);
   writeData('documents.json', docs);
   res.json({ message: 'Document ajouté', document: newDoc });
 });
 
-// CATEGORIES
-app.get('/categories', (req, res) => {
-  const cat = readData('categories.json');
-  res.json(cat);
+app.put('/documents/:id', (req, res) => {
+  const docs = readData('documents.json');
+  const id = parseInt(req.params.id);
+  const index = docs.findIndex(d => d.id_d === id);
+
+  if (index === -1) {
+    return res.status(404).json({ message: 'Document introuvable' });
+  }
+
+  docs[index] = { ...docs[index], ...req.body };
+  writeData('documents.json', docs);
+  res.json({ message: 'Document modifié', document: docs[index] });
 });
 
-app.post('/categories', (req, res) => {
-  const cat = readData('categories.json');
-  const newCat = req.body;
-  newCat.id_c = cat.length + 1;
-  cat.push(newCat);
-  writeData('categories.json', cat);
-  res.json({ message: 'Catégorie ajoutée', categorie: newCat });
-});
+app.delete('/documents/:id', (req, res) => {
+  const docs = readData('documents.json');
+  const id = parseInt(req.params.id);
+  const filtered = docs.filter(d => d.id_d !== id);
 
-// COMMENTAIRES
-app.get('/commentaires', (req, res) => {
-  const com = readData('commentaires.json');
-  res.json(com);
-});
+  if (docs.length === filtered.length) {
+    return res.status(404).json({ message: 'Document introuvable' });
+  }
 
-app.post('/commentaires', (req, res) => {
-  const com = readData('commentaires.json');
-  const newCom = req.body;
-  newCom.id_c = com.length + 1;
-  com.push(newCom);
-  writeData('commentaires.json', com);
-  res.json({ message: 'Commentaire ajouté', commentaire: newCom });
+  writeData('documents.json', filtered);
+  res.json({ message: 'Document supprimé' });
 });
 
 // LANCEMENT
 const PORT = 5000;
-app.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(` Serveur lancé sur http://localhost:${PORT}`));
