@@ -1,8 +1,10 @@
 [
   {
-    "id_c": " ",
-    "date_c": " ",
-    "contenu_c": " ",
-    "role": " "
+    "id_c": 1,
+    "date_c": "2025-10-07",
+    "contenu": "Excellent document !",
+    "role": "utilisateur",
+    "document_id": 1,
+    "utilisateur_id": 1
   }
 ]

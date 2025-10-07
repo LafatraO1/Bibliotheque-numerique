@@ -1,0 +1,9 @@
+[
+  {
+    "id_u": 1,
+    "nom_u": "Rabe",
+    "prenom_u": "Jean",
+    "email_u": "jeanrabe@example.com",
+    "mdp_u": "1234"
+  }
+]
