@@ -5,108 +5,144 @@
   <title>Inscription</title>
   <style>
     body {
-            background-size: cover;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .form-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        h1 {
-            color: #4CAF50;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        footer {
-            text-align: center;
-            color: #090808ff;
-            padding: 10px;
-            margin-top: 20px;
-        }
-        .btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background-color: #45a049;
-        }
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+    h1 {
+      color: #4CAF50;
+      text-align: center;
+      font-size: 18px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    footer {
+      text-align: center;
+      color: #090808ff;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+    #msg {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="form-container">
-    <h1> Centre de Développement de l'Aquaculture</h1>
+    <h1>Centre de Développement de l'Aquaculture</h1>
     <h2>Créer un compte</h2>
-    <form method="post" action="register.html">
-        
-        <div class="form-group">
-            <label for="nom">Nom :</label>
-            <input type="text" id="nom" name="nom_utilisateur" required><br><br>
-        </div>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="nom">Nom :</label>
+        <input type="text" id="nom" name="nom" required />
+      </div>
 
-        <div class="form-group">
-            <label for="nom">Prénom :</label>
-            <input type="text" id="nom" name="nom_utilisateur" required><br><br>
-        </div>
+      <div class="form-group">
+        <label for="prenom">Prénom :</label>
+        <input type="text" id="prenom" name="prenom" required />
+      </div>
 
-        <div class="form-group">
-            <label for="email">Email :</label>
-            <input type="email" id="email" name="email" required><br><br>
-        </div>
+      <div class="form-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required />
+      </div>
 
-        <div class="form-group">
-            <label for="password">Mot de passe :</label>
-            <input type="password" id="password" name="mot_de_passe" required><br><br>
-        </div>
+      <div class="form-group">
+        <label for="mot_de_passe">Mot de passe :</label>
+        <input type="password" id="mot_de_passe" name="mot_de_passe" required />
+      </div>
 
-        <button type="submit" class="btn">S'inscrire</button>
+      <button type="submit" class="btn">S'inscrire</button>
+      <p id="msg"></p>
     </form>
-  
-  <p>Déjà inscrit ? <a href="login.html">Se connecter</a></p>
+
+    <p style="text-align:center;">Déjà inscrit ? <a href="login.html">Se connecter</a></p>
+  </div>
 
   <script>
+    const baseUrl = "http://localhost:5000";
+
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+      const nom = document.getElementById("nom").value.trim();
+      const prenom = document.getElementById("prenom").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const mot_de_passe = document.getElementById("mot_de_passe").value;
 
-      const res = await fetch("http://localhost:5000/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      alert(data.message);
+      const msgEl = document.getElementById("msg");
+      msgEl.textContent = "Enregistrement en cours...";
+      msgEl.style.color = "#333";
+
+      try {
+        const res = await fetch(baseUrl + "/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nom, prenom, email, mot_de_passe })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          msgEl.textContent = data.message || "Erreur lors de l'inscription.";
+          msgEl.style.color = "crimson";
+          return;
+        }
+
+        msgEl.textContent = data.message || "Inscription réussie !";
+        msgEl.style.color = "green";
+
+        // redirection automatique après 1 seconde
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1000);
+
+      } catch (err) {
+        console.error(err);
+        msgEl.textContent = "Erreur de connexion au serveur.";
+        msgEl.style.color = "crimson";
+      }
     });
   </script>
 </body>

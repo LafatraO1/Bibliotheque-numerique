@@ -1,162 +1,214 @@
 const express = require('express');
-const fs = require('fs');
 const cors = require('cors');
-const app = express();
+const bcrypt = require('bcryptjs');
+const sqlite3 = require('sqlite3').verbose();
 
+const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Fonctions utilitaires
-function readData(file) {
-  const path = `./data/${file}`;
-  if (!fs.existsSync(path)) fs.writeFileSync(path, '[]');
-  return JSON.parse(fs.readFileSync(path, 'utf8'));
-}
+// CONNEXION BD
+const db = new sqlite3.Database('./data/bibliotheque.db');
 
-function writeData(file, data) {
-  fs.writeFileSync(`./data/${file}`, JSON.stringify(data, null, 2));
-}
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS utilisateurs (
+    id_u INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT,
+    email TEXT UNIQUE,
+    mot_de_passe TEXT
+  )`);
 
-// UTILISATEURS
+  db.run(`CREATE TABLE IF NOT EXISTS documents (
+    id_d INTEGER PRIMARY KEY AUTOINCREMENT,
+    titre TEXT,
+    auteur TEXT,
+    annee INTEGER,
+    fichier TEXT
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS categories (
+    id_cat INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS commentaires (
+    id_c INTEGER PRIMARY KEY AUTOINCREMENT,
+    contenu TEXT,
+    date_c TEXT,
+    id_u INTEGER,
+    id_d INTEGER,
+    FOREIGN KEY (id_u) REFERENCES utilisateurs(id_u),
+    FOREIGN KEY (id_d) REFERENCES documents(id_d)
+  )`);
+});
+
+// ROUTES UTILISATEURS
+app.post('/register', (req, res) => {
+  const { nom, email, mot_de_passe } = req.body;
+  if (!nom || !email || !mot_de_passe)
+    return res.status(400).json({ message: 'Tous les champs sont requis' });
+
+  db.get(`SELECT * FROM utilisateurs WHERE email = ?`, [email], (err, user) => {
+    if (user) return res.status(400).json({ message: 'Email déjà utilisé' });
+
+    const hash = bcrypt.hashSync(mot_de_passe, 10);
+    db.run(
+      `INSERT INTO utilisateurs (nom, email, mot_de_passe) VALUES (?, ?, ?)`,
+      [nom, email, hash],
+      function (err) {
+        if (err) return res.status(500).json({ message: 'Erreur serveur' });
+        res.json({ message: 'Utilisateur enregistré', user: { id_u: this.lastID, nom, email } });
+      }
+    );
+  });
+});
+
+app.post('/login', (req, res) => {
+  const { email, mot_de_passe } = req.body;
+  db.get(`SELECT * FROM utilisateurs WHERE email = ?`, [email], (err, user) => {
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    const valid = bcrypt.compareSync(mot_de_passe, user.mot_de_passe);
+    if (!valid) return res.status(401).json({ message: 'Mot de passe incorrect' });
+    res.json({ message: 'Connexion réussie', user: { id_u: user.id_u, nom: user.nom, email: user.email } });
+  });
+});
+
 app.get('/utilisateurs', (req, res) => {
-  res.json(readData('users.json'));
+  db.all(`SELECT * FROM utilisateurs`, [], (err, rows) => res.json(rows));
 });
 
 app.post('/utilisateurs', (req, res) => {
-  const users = readData('users.json');
-  const newUser = req.body;
-  newUser.id_u = users.length ? users[users.length - 1].id_u + 1 : 1;
-  users.push(newUser);
-  writeData('users.json', users);
-  res.json({ message: 'Utilisateur ajouté', user: newUser });
+  const { nom, email, mot_de_passe } = req.body;
+  const hash = bcrypt.hashSync(mot_de_passe || '1234', 10);
+  db.run(
+    `INSERT INTO utilisateurs (nom, email, mot_de_passe) VALUES (?, ?, ?)`,
+    [nom, email, hash],
+    function (err) {
+      if (err) return res.status(400).json({ message: 'Erreur insertion' });
+      res.json({ message: 'Utilisateur ajouté', id_u: this.lastID });
+    }
+  );
 });
 
 app.put('/utilisateurs/:id', (req, res) => {
-  const users = readData('users.json');
-  const id = parseInt(req.params.id);
-  const index = users.findIndex(u => u.id_u === id);
-  if (index !== -1) {
-    users[index] = { ...users[index], ...req.body };
-    writeData('users.json', users);
-    res.json({ message: 'Utilisateur modifié', user: users[index] });
-  } else {
-    res.status(404).json({ message: 'Utilisateur non trouvé' });
-  }
+  const { nom, email } = req.body;
+  db.run(
+    `UPDATE utilisateurs SET nom = ?, email = ? WHERE id_u = ?`,
+    [nom, email, req.params.id],
+    function (err) {
+      if (err) return res.status(400).json({ message: 'Erreur mise à jour' });
+      res.json({ message: 'Utilisateur modifié' });
+    }
+  );
 });
 
 app.delete('/utilisateurs/:id', (req, res) => {
-  const users = readData('users.json');
-  const id = parseInt(req.params.id);
-  const filtered = users.filter(u => u.id_u !== id);
-  writeData('users.json', filtered);
-  res.json({ message: 'Utilisateur supprimé' });
+  db.run(`DELETE FROM utilisateurs WHERE id_u = ?`, [req.params.id], function (err) {
+    if (err) return res.status(400).json({ message: 'Erreur suppression' });
+    res.json({ message: 'Utilisateur supprimé' });
+  });
 });
 
 // DOCUMENTS
 app.get('/documents', (req, res) => {
-  res.json(readData('documents.json'));
+  db.all(`SELECT * FROM documents`, [], (err, rows) => res.json(rows));
 });
 
 app.post('/documents', (req, res) => {
-  const docs = readData('documents.json');
-  const newDoc = req.body;
-  newDoc.id_d = docs.length ? docs[docs.length - 1].id_d + 1 : 1;
-  docs.push(newDoc);
-  writeData('documents.json', docs);
-  res.json({ message: 'Document ajouté', document: newDoc });
+  const { titre, auteur, annee, fichier } = req.body;
+  db.run(
+    `INSERT INTO documents (titre, auteur, annee, fichier) VALUES (?, ?, ?, ?)`,
+    [titre, auteur, annee, fichier],
+    function (err) {
+      if (err) return res.status(400).json({ message: 'Erreur ajout' });
+      res.json({ message: 'Document ajouté', id_d: this.lastID });
+    }
+  );
 });
 
 app.put('/documents/:id', (req, res) => {
-  const docs = readData('documents.json');
-  const id = parseInt(req.params.id);
-  const index = docs.findIndex(d => d.id_d === id);
-  if (index !== -1) {
-    docs[index] = { ...docs[index], ...req.body };
-    writeData('documents.json', docs);
-    res.json({ message: 'Document modifié', document: docs[index] });
-  } else {
-    res.status(404).json({ message: 'Document non trouvé' });
-  }
+  const { titre, auteur, annee, fichier } = req.body;
+  db.run(
+    `UPDATE documents SET titre=?, auteur=?, annee=?, fichier=? WHERE id_d=?`,
+    [titre, auteur, annee, fichier, req.params.id],
+    function (err) {
+      if (err) return res.status(400).json({ message: 'Erreur mise à jour' });
+      res.json({ message: 'Document modifié' });
+    }
+  );
 });
 
 app.delete('/documents/:id', (req, res) => {
-  const docs = readData('documents.json');
-  const id = parseInt(req.params.id);
-  const filtered = docs.filter(d => d.id_d !== id);
-  writeData('documents.json', filtered);
-  res.json({ message: 'Document supprimé' });
+  db.run(`DELETE FROM documents WHERE id_d=?`, [req.params.id], function (err) {
+    if (err) return res.status(400).json({ message: 'Erreur suppression' });
+    res.json({ message: 'Document supprimé' });
+  });
 });
 
 // CATEGORIES
 app.get('/categories', (req, res) => {
-  res.json(readData('categories.json'));
+  db.all(`SELECT * FROM categories`, [], (err, rows) => res.json(rows));
 });
 
 app.post('/categories', (req, res) => {
-  const cat = readData('categories.json');
-  const newCat = req.body;
-  newCat.id_cat = cat.length ? cat[cat.length - 1].id_cat + 1 : 1;
-  cat.push(newCat);
-  writeData('categories.json', cat);
-  res.json({ message: 'Catégorie ajoutée', categorie: newCat });
+  const { nom } = req.body;
+  db.run(`INSERT INTO categories (nom) VALUES (?)`, [nom], function (err) {
+    if (err) return res.status(400).json({ message: 'Erreur ajout' });
+    res.json({ message: 'Catégorie ajoutée', id_cat: this.lastID });
+  });
 });
 
 app.put('/categories/:id', (req, res) => {
-  const cat = readData('categories.json');
-  const id = parseInt(req.params.id);
-  const index = cat.findIndex(c => c.id_cat === id);
-  if (index !== -1) {
-    cat[index] = { ...cat[index], ...req.body };
-    writeData('categories.json', cat);
-    res.json({ message: 'Catégorie modifiée', categorie: cat[index] });
-  } else {
-    res.status(404).json({ message: 'Catégorie non trouvée' });
-  }
+  const { nom } = req.body;
+  db.run(`UPDATE categories SET nom=? WHERE id_cat=?`, [nom, req.params.id], function (err) {
+    if (err) return res.status(400).json({ message: 'Erreur mise à jour' });
+    res.json({ message: 'Catégorie modifiée' });
+  });
 });
 
 app.delete('/categories/:id', (req, res) => {
-  const cat = readData('categories.json');
-  const id = parseInt(req.params.id);
-  const filtered = cat.filter(c => c.id_cat !== id);
-  writeData('categories.json', filtered);
-  res.json({ message: 'Catégorie supprimée' });
+  db.run(`DELETE FROM categories WHERE id_cat=?`, [req.params.id], function (err) {
+    if (err) return res.status(400).json({ message: 'Erreur suppression' });
+    res.json({ message: 'Catégorie supprimée' });
+  });
 });
 
 // COMMENTAIRES
 app.get('/commentaires', (req, res) => {
-  res.json(readData('commentaires.json'));
+  db.all(`SELECT * FROM commentaires`, [], (err, rows) => res.json(rows));
 });
 
 app.post('/commentaires', (req, res) => {
-  const com = readData('commentaires.json');
-  const newCom = req.body;
-  newCom.id_c = com.length ? com[com.length - 1].id_c + 1 : 1;
-  com.push(newCom);
-  writeData('commentaires.json', com);
-  res.json({ message: 'Commentaire ajouté', commentaire: newCom });
+  const { contenu, date_c, id_u, id_d } = req.body;
+  db.run(
+    `INSERT INTO commentaires (contenu, date_c, id_u, id_d) VALUES (?, ?, ?, ?)`,
+    [contenu, date_c, id_u, id_d],
+    function (err) {
+      if (err) return res.status(400).json({ message: 'Erreur ajout' });
+      res.json({ message: 'Commentaire ajouté', id_c: this.lastID });
+    }
+  );
 });
 
 app.put('/commentaires/:id', (req, res) => {
-  const com = readData('commentaires.json');
-  const id = parseInt(req.params.id);
-  const index = com.findIndex(c => c.id_c === id);
-  if (index !== -1) {
-    com[index] = { ...com[index], ...req.body };
-    writeData('commentaires.json', com);
-    res.json({ message: 'Commentaire modifié', commentaire: com[index] });
-  } else {
-    res.status(404).json({ message: 'Commentaire non trouvé' });
-  }
+  const { contenu, date_c } = req.body;
+  db.run(
+    `UPDATE commentaires SET contenu=?, date_c=? WHERE id_c=?`,
+    [contenu, date_c, req.params.id],
+    function (err) {
+      if (err) return res.status(400).json({ message: 'Erreur mise à jour' });
+      res.json({ message: 'Commentaire modifié' });
+    }
+  );
 });
 
 app.delete('/commentaires/:id', (req, res) => {
-  const com = readData('commentaires.json');
-  const id = parseInt(req.params.id);
-  const filtered = com.filter(c => c.id_c !== id);
-  writeData('commentaires.json', filtered);
-  res.json({ message: 'Commentaire supprimé' });
+  db.run(`DELETE FROM commentaires WHERE id_c=?`, [req.params.id], function (err) {
+    if (err) return res.status(400).json({ message: 'Erreur suppression' });
+    res.json({ message: 'Commentaire supprimé' });
+  });
 });
 
-// LANCEMENT DU SERVEUR
+// LANCEMENT SERVEUR
 const PORT = 5000;
-app.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(` Serveur SQLite lancé sur http://localhost:${PORT}`));
