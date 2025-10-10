@@ -2,22 +2,137 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Bibliothèque Numérique</title>
+  <title>Bibliotheque-numerique</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-    h1 { text-align: center; }
-    #searchInput { width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px; }
-    .livre { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
-    .livre h3 { margin: 0; color: #0077cc; }
-    .livre h3:hover { text-decoration: underline; }
-    .preview { margin-top: 5px; font-size: 14px; color: #444; }
-    .highlight { background-color: yellow; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    #ajouterBtn {
+      background: #0077cc;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    #ajouterBtn:hover { background: #005fa3; }
+    .livre {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .delete-btn:hover { background: #c0392b; }
   </style>
 </head>
 <body>
-  <h1>📚 Bibliothèque Numérique CDA</h1>
-  <input type="text" id="searchInput" placeholder="🔍 Rechercher un livre...">
+  <h1>📚 Gestion des livres</h1>
+
+  <input type="text" id="searchInput" placeholder=" Rechercher un livre...">
+  <button id="addButton">Ajouter un livre</button>
   <div id="results"></div>
-  <script src="renderer.js"></script>
+
+
+  <script>
+    const resultsDiv = document.getElementById("results");
+    const searchInput = document.getElementById("searchInput");
+
+    // Dossier des fichiers (déjà existants dans ton projet)
+    const dossierLivres = "./livres/";  // exemple dossier "livres" à côté du HTML
+    let livres = [];
+
+    // Charger les livres déjà connus (simulation de documents.json)
+    async function chargerLivres() {
+      const data = localStorage.getItem("livres");
+      livres = data ? JSON.parse(data) : [];
+      afficherLivres(livres);
+    }
+
+    // Affichage
+    function afficherLivres(liste) {
+      resultsDiv.innerHTML = "";
+      if (liste.length === 0) {
+        resultsDiv.innerHTML = "<p>Aucun livre trouvé.</p>";
+        return;
+      }
+
+      liste.forEach(livre => {
+        const div = document.createElement("div");
+        div.className = "livre";
+        div.innerHTML = `
+          <h3>${livre.nom}</h3>
+          <a href="${livre.chemin}" target="_blank">📖 Ouvrir le livre</a><br>
+          <button class="delete-btn" onclick="supprimerLivre('${livre.nom}')">🗑 Supprimer</button>
+        `;
+        resultsDiv.appendChild(div);
+      });
+    }
+
+    // Ajouter un livre existant (sélectionner fichier local)
+    document.getElementById("ajouterBtn").addEventListener("click", async () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".pdf";
+      input.onchange = e => {
+        const fichier = e.target.files[0];
+        if (!fichier) return;
+
+        const nouveau = {
+          nom: fichier.name,
+          chemin: dossierLivres + fichier.name
+        };
+
+        livres.push(nouveau);
+        localStorage.setItem("livres", JSON.stringify(livres));
+        afficherLivres(livres);
+      };
+      input.click();
+    });
+
+    // Supprimer
+    function supprimerLivre(nom) {
+      if (!confirm("Supprimer ce livre ?")) return;
+      livres = livres.filter(l => l.nom !== nom);
+      localStorage.setItem("livres", JSON.stringify(livres));
+      afficherLivres(livres);
+    }
+
+    // Recherche
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      const filtres = livres.filter(l =>
+        l.nom.toLowerCase().includes(query)
+      );
+      afficherLivres(filtres);
+    });
+
+    // Démarrage
+    chargerLivres();
+  </script>
 </body>
 </html>

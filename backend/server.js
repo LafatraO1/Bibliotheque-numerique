@@ -209,6 +209,31 @@ app.delete('/commentaires/:id', (req, res) => {
   });
 });
 
+//LIVRES
+app.get("/livres", (req, res) => {
+  db.all("SELECT * FROM livres", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+app.post("/livres", (req, res) => {
+  const { titre, auteur, categorie } = req.body;
+  db.run(
+    "INSERT INTO livres (titre, auteur, categorie) VALUES (?, ?, ?)",
+    [titre, auteur, categorie],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Livre ajouté", id: this.lastID });
+    }
+  );
+});
+app.delete("/livres/:id", (req, res) => {
+  db.run("DELETE FROM livres WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Livre supprimé" });
+  });
+});
+
 // LANCEMENT SERVEUR
 const PORT = 5000;
 app.listen(PORT, () => console.log(` Serveur SQLite lancé sur http://localhost:${PORT}`));
