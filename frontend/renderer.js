@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const div = document.createElement("div");
       div.className = "livre";
       div.innerHTML = `
-        <button class="deleteBtn" data-file="${livre.fichier}">🗑️ Supprimer</button>
+        <button class="deleteBtn" data-file="${livre.fichier}">Supprimer</button>
         <h3 class="titre" data-file="${livre.fichier}">
           ${highlight(livre.titre, query)}
         </h3>
