@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Bibliotheque CDA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f6f6f6;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #categoryList {
+      margin-top: 20px;
+    }
+    .categorie {
+      background: white;
+      padding: 10px 15px;
+      margin: 5px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+    }
+    #addBtn {
+      background-color: #34e76a;
+      color: white;
+      margin-bottom: 15px;
+    }
+    .deleteBtn {
+      background-color: rgb(238, 126, 126);
+      color: white;
+    }
+    #retourBtn {
+      background-color: #6c757d;
+      color: white;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gestion des Catégories</h1>
+
+  <input type="text" id="newCategory" placeholder="Nouvelle catégorie" autofocus>
+  <button id="addBtn">➕ Ajouter</button>
+
+  <div id="categoryList"></div>
+
+  <button id="retourBtn">⬅️ Retour</button>
+
+  <script src="../renderer-categories.js"></script>
+</body>
+</html>

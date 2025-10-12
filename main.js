@@ -3,8 +3,13 @@ const path = require("node:path");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 
+// ===========================
+// 🔹 CREATION FENÊTRE PRINCIPALE
+// ===========================
+let mainWindow;
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 700,
     autoHideMenuBar: true,
@@ -15,21 +20,81 @@ function createWindow() {
     }
   });
 
-  win.loadFile(path.join(__dirname, "frontend", "index.html"));
+  // 👉 Charger la page de connexion en premier
+  mainWindow.loadFile(path.join(__dirname, "frontend", "login.html"));
 }
 
+// ===========================
+// 🔹 LANCEMENT APPLICATION
+// ===========================
 app.whenReady().then(() => {
   createWindow();
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+
+  // Créer les dossiers/fichiers nécessaires
+  const livresFolder = path.join(__dirname, "livres");
+  if (!fs.existsSync(livresFolder)) fs.mkdirSync(livresFolder);
+
+  const usersFile = path.join(__dirname, "users.json");
+  if (!fs.existsSync(usersFile)) fs.writeFileSync(usersFile, JSON.stringify([]));
+
+  const categoriesPath = path.join(__dirname, "categories.json");
+  if (!fs.existsSync(categoriesPath)) fs.writeFileSync(categoriesPath, JSON.stringify([]));
 });
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-// Récupérer tous les livres
+// ===========================
+// 👤 LOGIN & REGISTER
+// ===========================
+const usersPath = path.join(__dirname, "users.json");
+
+// ➕ Enregistrement utilisateur
+ipcMain.handle("register-user", async (_, user) => {
+  try {
+    const data = fs.readFileSync(usersPath, "utf8");
+    const users = JSON.parse(data);
+
+    const exists = users.find(u => u.email === user.email);
+    if (exists) return { success: false, message: "Email déjà utilisé !" };
+
+    users.push(user);
+    fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+    return { success: true };
+  } catch (err) {
+    console.error("Erreur register :", err);
+    return { success: false, message: "Erreur interne." };
+  }
+});
+
+// 🔐 Connexion utilisateur
+ipcMain.handle("login-user", async (_, { email, password }) => {
+  try {
+    const data = fs.readFileSync(usersPath, "utf8");
+    const users = JSON.parse(data);
+
+    const user = users.find(u => u.email === email && u.password === password);
+    if (user) {
+      // ✅ Charger la page principale après connexion
+      mainWindow.loadFile(path.join(__dirname, "frontend", "index.html"));
+      return { success: true, user };
+    } else {
+      return { success: false, message: "Identifiants invalides !" };
+    }
+  } catch (err) {
+    console.error("Erreur login :", err);
+    return { success: false, message: "Erreur interne." };
+  }
+});
+
+// ===========================
+// 📚 GESTION DES LIVRES
+// ===========================
 ipcMain.handle("get-books", async () => {
   const folderPath = path.join(__dirname, "livres");
   if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath);
@@ -108,6 +173,47 @@ ipcMain.handle("delete-book", async (_, fileRelativePath) => {
     }
   } catch (err) {
     console.error("Erreur suppression :", err);
+    return false;
+  }
+});
+
+// ===========================
+// 🗂️ GESTION DES CATÉGORIES
+// ===========================
+const categoriesPath = path.join(__dirname, "categories.json");
+
+ipcMain.handle("get-categories", async () => {
+  try {
+    const data = fs.readFileSync(categoriesPath, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    console.error("Erreur lecture categories :", err);
+    return [];
+  }
+});
+
+ipcMain.handle("add-category", async (_, categorie) => {
+  try {
+    const data = fs.readFileSync(categoriesPath, "utf8");
+    const categories = JSON.parse(data);
+    categories.push(categorie);
+    fs.writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+    return true;
+  } catch (err) {
+    console.error("Erreur ajout catégorie :", err);
+    return false;
+  }
+});
+
+ipcMain.handle("delete-category", async (_, nom) => {
+  try {
+    const data = fs.readFileSync(categoriesPath, "utf8");
+    let categories = JSON.parse(data);
+    categories = categories.filter(c => c.nom !== nom);
+    fs.writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+    return true;
+  } catch (err) {
+    console.error("Erreur suppression catégorie :", err);
     return false;
   }
 });
