@@ -3,20 +3,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resultsDiv = document.getElementById("results");
   const addBtn = document.getElementById("addBook");
 
-  // Maka ny livres rehetra
+  // Maka sy mamerina ny lisitry ny livres
   async function chargerLivres() {
     const livres = await window.electronAPI.getBooks();
     afficherResultats(livres, searchInput.value);
   }
 
-  // Highlight texte
+  // Manasongadina ny mot-clé
   function highlight(text, query) {
     if (!query) return text;
     const regex = new RegExp(`(${query})`, "gi");
     return text.replace(regex, "<span class='highlight'>$1</span>");
   }
 
-  // Maka extrait amin’ny contenu
+  // Maka extrait kely amin'ny contenu
   function extraitContenu(contenu, query, longueur = 80) {
     if (!query || !contenu) return "";
     const index = contenu.toLowerCase().indexOf(query.toLowerCase());
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return "..." + highlight(extrait, query) + "...";
   }
 
-  // Afficher les résultats
+  // Aseho amin'ny écran ny résultats
   async function afficherResultats(livres, query = "") {
     resultsDiv.innerHTML = "";
     const lowerQuery = query.toLowerCase();
@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const extrait = extraitContenu(livre.contenu, query);
       const div = document.createElement("div");
       div.className = "livre";
+
       div.innerHTML = `
         <button class="deleteBtn" data-file="${livre.fichier}">🗑️ Supprimer</button>
         <h3 class="titre" data-file="${livre.fichier}">
@@ -53,12 +54,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         </h3>
         ${extrait ? `<p class="preview">${extrait}</p>` : ""}
       `;
-      // Ouvrir le livre
-      div.querySelector(".titre").addEventListener("click", () => {
-        window.open(livre.fichier, "_blank");
+
+      //  Clique amin’ny titre → manokatra ilay PDF/TXT
+      const titreElement = div.querySelector(".titre");
+      titreElement.addEventListener("click", async (e) => {
+        const file = e.target.getAttribute("data-file");
+        // Alefa any amin’ny main process amin’ny alalan’ny preload
+        await window.electronAPI.openBookInApp(file);
       });
-      // Supprimer un livre
-      div.querySelector(".deleteBtn").addEventListener("click", async (e) => {
+
+      //  Supprimer un livre
+      const deleteBtn = div.querySelector(".deleteBtn");
+      deleteBtn.addEventListener("click", async (e) => {
         const file = e.target.getAttribute("data-file");
         const confirmDelete = confirm("Supprimer ce livre ?");
         if (!confirmDelete) return;
@@ -76,12 +83,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     afficherResultats(livres, e.target.value);
   });
 
-  // Bouton Ajouter un livre
+  // Bouton Ajouter
   addBtn.addEventListener("click", async () => {
     const ok = await window.electronAPI.addBook();
     if (ok) chargerLivres();
   });
 
-  // Charger initialement
+  // Chargement initial
   chargerLivres();
 });

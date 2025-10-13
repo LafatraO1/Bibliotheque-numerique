@@ -3,9 +3,9 @@ const path = require("node:path");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 
-// ===========================
-// 🔹 CREATION FENÊTRE PRINCIPALE
-// ===========================
+
+// CREATION FENÊTRE PRINCIPALE
+
 let mainWindow;
 
 function createWindow() {
@@ -20,13 +20,13 @@ function createWindow() {
     }
   });
 
-  // 👉 Charger la page de connexion en premier
+  //  Charger la page de connexion en premier
   mainWindow.loadFile(path.join(__dirname, "frontend", "login.html"));
 }
 
-// ===========================
-// 🔹 LANCEMENT APPLICATION
-// ===========================
+
+// LANCEMENT APPLICATION
+
 app.whenReady().then(() => {
   createWindow();
 
@@ -49,12 +49,11 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-// ===========================
-// 👤 LOGIN & REGISTER
-// ===========================
+
+// LOGIN & REGISTER
 const usersPath = path.join(__dirname, "users.json");
 
-// ➕ Enregistrement utilisateur
+// Enregistrement utilisateur
 ipcMain.handle("register-user", async (_, user) => {
   try {
     const data = fs.readFileSync(usersPath, "utf8");
@@ -72,7 +71,7 @@ ipcMain.handle("register-user", async (_, user) => {
   }
 });
 
-// 🔐 Connexion utilisateur
+//  Connexion utilisateur
 ipcMain.handle("login-user", async (_, { email, password }) => {
   try {
     const data = fs.readFileSync(usersPath, "utf8");
@@ -80,7 +79,7 @@ ipcMain.handle("login-user", async (_, { email, password }) => {
 
     const user = users.find(u => u.email === email && u.password === password);
     if (user) {
-      // ✅ Charger la page principale après connexion
+      //  Charger la page principale après connexion
       mainWindow.loadFile(path.join(__dirname, "frontend", "index.html"));
       return { success: true, user };
     } else {
@@ -92,9 +91,9 @@ ipcMain.handle("login-user", async (_, { email, password }) => {
   }
 });
 
-// ===========================
-// 📚 GESTION DES LIVRES
-// ===========================
+
+// GESTION DES LIVRES
+
 ipcMain.handle("get-books", async () => {
   const folderPath = path.join(__dirname, "livres");
   if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath);
@@ -177,9 +176,8 @@ ipcMain.handle("delete-book", async (_, fileRelativePath) => {
   }
 });
 
-// ===========================
-// 🗂️ GESTION DES CATÉGORIES
-// ===========================
+//  GESTION DES CATÉGORIES
+
 const categoriesPath = path.join(__dirname, "categories.json");
 
 ipcMain.handle("get-categories", async () => {
@@ -217,3 +215,50 @@ ipcMain.handle("delete-category", async (_, nom) => {
     return false;
   }
 });
+
+// Ouvrir un livre dans une nouvelle fenêtre interne
+ipcMain.handle("open-book", async (_, fileRelativePath) => {
+  const filePath = path.join(__dirname, fileRelativePath);
+
+  if (!fs.existsSync(filePath)) {
+    console.error("Fichier introuvable :", filePath);
+    return false;
+  }
+
+  const lectureWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    autoHideMenuBar: true,
+    title: "Lecture du livre",
+  });
+
+  // Pour PDF → affichage direct
+  if (filePath.endsWith(".pdf")) {
+    lectureWindow.loadURL("file://" + filePath);
+  }
+  // Pour TXT → afficher contenu dans HTML
+  else if (filePath.endsWith(".txt")) {
+    const contenu = fs.readFileSync(filePath, "utf8");
+    lectureWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(`
+      <html>
+        <head>
+          <title>${path.basename(filePath)}</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; line-height: 1.6; background:#f9f9f9; }
+            pre { white-space: pre-wrap; }
+          </style>
+        </head>
+        <body>
+          <h2>${path.basename(filePath)}</h2>
+          <pre>${contenu}</pre>
+        </body>
+      </html>
+    `));
+  } 
+  else {
+    lectureWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent("<p>Format non supporté.</p>"));
+  }
+
+  return true;
+});
+

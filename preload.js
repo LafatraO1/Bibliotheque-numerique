@@ -1,9 +1,10 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, shell } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
   getBooks: () => ipcRenderer.invoke("get-books"),
   addBook: () => ipcRenderer.invoke("add-book"),
   deleteBook: (file) => ipcRenderer.invoke("delete-book", file),
+  openBookInApp: (file) => ipcRenderer.invoke("open-book", file),
 
   // Catégories
   getCategories: () => ipcRenderer.invoke("get-categories"),
