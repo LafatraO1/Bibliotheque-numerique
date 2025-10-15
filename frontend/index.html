@@ -43,19 +43,30 @@
 </head>
 <body>
   <h1>📚 Bibliothèque-numerique</h1>
-  <input type="text" id="searchInput" placeholder="Rechercher un livre..." autofocus >
-  <button id="addBook">➕ Ajouter</button>
-  <button id="ouvrirCategories"> Catégories</button>
+  <div class="actions">
+    <input type="text" id="searchInput" placeholder="Rechercher un livre..." autofocus>
+    
+    <!-- Sélecteur de catégorie -->
+    <select id="categorySelect">
+      <option value="">Toutes les catégories</option>
+    </select>
+
+    <button id="addBook">➕ Ajouter</button>
+    <button id="btnCategories">📂 Gérer les Catégories</button>
+
+  </div>
 
 
-  <div id="results"></div>
+  <div id="results" style="cursor: pointer;" ></div>
 
   <script src="../renderer.js"></script>
+
   <script>
-    // Ouvrir la page des catégories
-    document.getElementById("ouvrirCategories").addEventListener("click", () => {
+    //  Redirection vers la page des catégories
+    document.getElementById("btnCategories").addEventListener("click", () => {
       window.location.href = "categories.html";
     });
   </script>
+
 </body>
 </html>

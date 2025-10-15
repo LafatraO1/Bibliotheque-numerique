@@ -2,62 +2,56 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Bibliotheque CDA</title>
+  <title>Gestion des Catégories</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 30px;
-      background-color: #f6f6f6;
+      background-color: #f8f9fa;
+      padding: 20px;
     }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    #categoryList {
-      margin-top: 20px;
-    }
-    .categorie {
-      background: white;
-      padding: 10px 15px;
+    h1 { color: #333; }
+    #categoryList div {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
       margin: 5px 0;
-      border-radius: 8px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      border-radius: 5px;
     }
     button {
       cursor: pointer;
+      padding: 6px 10px;
       border: none;
       border-radius: 5px;
-      padding: 6px 12px;
     }
     #addBtn {
-      background-color: #34e76a;
+      background: #007bff;
       color: white;
-      margin-bottom: 15px;
     }
     .deleteBtn {
-      background-color: rgb(238, 126, 126);
+      background: #dc3545;
       color: white;
     }
     #retourBtn {
-      background-color: #6c757d;
+      background: gray;
       color: white;
-      margin-top: 20px;
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <h1>Gestion des Catégories</h1>
+  <h1>📚 Gestion des Catégories</h1>
 
-  <input type="text" id="newCategory" placeholder="Nouvelle catégorie" autofocus>
-  <button id="addBtn">➕ Ajouter</button>
+  <div class="ajout-section">
+    <input type="text" id="newCategory" placeholder="Nouvelle catégorie..." />
+    <button id="addBtn">Ajouter</button>
+    <button id="retourBtn">⬅️ Retour</button>
+  </div>
 
-  <div id="categoryList"></div>
+  <div id="categoryList" class="list"></div>
 
-  <button id="retourBtn">⬅️ Retour</button>
+  <script src="renderer_categories.js"></script>
 
-  <script src="../renderer-categories.js"></script>
 </body>
 </html>

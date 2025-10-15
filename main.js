@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
-const path = require("node:path");
+const path = require("path");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 
@@ -176,45 +176,56 @@ ipcMain.handle("delete-book", async (_, fileRelativePath) => {
   }
 });
 
-//  GESTION DES CATÉGORIES
+// GESTION DES CATÉGORIES
+const categoriesFile = path.join(__dirname, "categories.json");
 
-const categoriesPath = path.join(__dirname, "categories.json");
+// Assurer que le fichier existe
+if (!fs.existsSync(categoriesFile)) {
+  fs.writeFileSync(categoriesFile, JSON.stringify([]));
+}
 
+// Obtenir toutes les catégories
 ipcMain.handle("get-categories", async () => {
   try {
-    const data = fs.readFileSync(categoriesPath, "utf8");
+    const data = fs.readFileSync(categoriesFile, "utf-8");
     return JSON.parse(data);
-  } catch (err) {
-    console.error("Erreur lecture categories :", err);
+  } catch (error) {
+    console.error("Erreur lecture catégories:", error);
     return [];
   }
 });
 
-ipcMain.handle("add-category", async (_, categorie) => {
+// Ajouter une catégorie
+ipcMain.handle("add-category", async (event, cat) => {
   try {
-    const data = fs.readFileSync(categoriesPath, "utf8");
+    const data = fs.readFileSync(categoriesFile, "utf-8");
     const categories = JSON.parse(data);
-    categories.push(categorie);
-    fs.writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
-    return true;
-  } catch (err) {
-    console.error("Erreur ajout catégorie :", err);
-    return false;
+    categories.push(cat);
+    fs.writeFileSync(categoriesFile, JSON.stringify(categories, null, 2));
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur ajout catégorie:", error);
+    return { success: false };
   }
 });
 
-ipcMain.handle("delete-category", async (_, nom) => {
+
+// Supprimer une catégorie
+ipcMain.handle("delete-category", async (event, nom) => {
   try {
-    const data = fs.readFileSync(categoriesPath, "utf8");
+    const data = fs.readFileSync(categoriesFile, "utf-8");
     let categories = JSON.parse(data);
-    categories = categories.filter(c => c.nom !== nom);
-    fs.writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
-    return true;
-  } catch (err) {
-    console.error("Erreur suppression catégorie :", err);
-    return false;
+
+    const updated = categories.filter(cat => cat.nom !== nom);
+    fs.writeFileSync(categoriesFile, JSON.stringify(updated, null, 2));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur suppression catégorie:", error);
+    return { success: false };
   }
 });
+
 
 // Ouvrir un livre dans une nouvelle fenêtre interne
 ipcMain.handle("open-book", async (_, fileRelativePath) => {

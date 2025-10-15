@@ -8,10 +8,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Catégories
   getCategories: () => ipcRenderer.invoke("get-categories"),
-  addCategory: (categorie) => ipcRenderer.invoke("add-category", categorie),
+  addCategory: (cat) => ipcRenderer.invoke("add-category", cat),
   deleteCategory: (nom) => ipcRenderer.invoke("delete-category", nom),
 
   // Utilisateurs
   registerUser: (user) => ipcRenderer.invoke("register-user", user),
-  loginUser: (data) => ipcRenderer.invoke("login-user", data)
+  loginUser: (data) => ipcRenderer.invoke("login-user", data),
 });
