@@ -33,7 +33,7 @@
     }
     .deleteBtn {
       float: right;
-      background: rgb(238, 126, 126);
+      background: rgb(235, 4, 4);
       color: white;
       border: none;
       border-radius: 4px;
@@ -44,15 +44,16 @@
 <body>
   <h1>📚 Bibliothèque-numerique</h1>
   <div class="actions">
-    <input type="text" id="searchInput" placeholder="Rechercher un livre..." autofocus>
+    <input type="text" id="searchInput" placeholder="Rechercher un livre..." autofocus> <br>
     
-    <!-- Sélecteur de catégorie -->
-    <select id="categorySelect">
-      <option value="">Toutes les catégories</option>
-    </select>
+    <label for="categorie"></label>
+    <select id="categorieSelect">
+      <option value=""> Choisir une catégorie</option>
+    </select><br>
 
-    <button id="addBook">➕ Ajouter</button>
-    <button id="btnCategories">📂 Gérer les Catégories</button>
+
+    <button id="addBook">➕ Ajouter</button> <br>
+    <button onclick="window.location.href='categories.html'">📂 Gérer les Catégories</button>
 
   </div>
 

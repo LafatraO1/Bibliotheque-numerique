@@ -16,8 +16,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 
   //  Charger la page de connexion en premier
@@ -135,7 +135,7 @@ ipcMain.handle("get-books", async () => {
 });
 
 // Ajouter un livre
-ipcMain.handle("add-book", async () => {
+ipcMain.handle("add-book", async (_, categorie) => {
   try {
     const result = await dialog.showOpenDialog({
       title: "Choisir un livre à ajouter",
@@ -151,6 +151,21 @@ ipcMain.handle("add-book", async () => {
 
     const dest = path.join(destFolder, path.basename(src));
     fs.copyFileSync(src, dest);
+
+    // Sauvegarder la catégorie dans un fichier JSON de meta
+    const metaPath = path.join(__dirname, "livres_meta.json");
+    let metas = [];
+    if (fs.existsSync(metaPath)) {
+      metas = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
+    }
+
+    metas.push({
+      titre: path.basename(src),
+      fichier: "livres/" + path.basename(src),
+      categorie: categorie || "Non classé"
+    });
+
+    fs.writeFileSync(metaPath, JSON.stringify(metas, null, 2));
 
     return true;
   } catch (err) {
@@ -196,18 +211,24 @@ ipcMain.handle("get-categories", async () => {
 });
 
 // Ajouter une catégorie
-ipcMain.handle("add-category", async (event, cat) => {
-  try {
-    const data = fs.readFileSync(categoriesFile, "utf-8");
-    const categories = JSON.parse(data);
-    categories.push(cat);
-    fs.writeFileSync(categoriesFile, JSON.stringify(categories, null, 2));
-    return { success: true };
-  } catch (error) {
-    console.error("Erreur ajout catégorie:", error);
-    return { success: false };
+ipcMain.handle("add-category", async (_, cat) => {
+  const file = path.join(__dirname, "categories.json");
+  let categories = [];
+
+  if (fs.existsSync(file)) {
+    categories = JSON.parse(fs.readFileSync(file, "utf-8"));
   }
+
+  if (categories.some(c => c.nom === cat.nom)) {
+    return { success: false, message: "Catégorie déjà existante" };
+  }
+
+  categories.push(cat);
+  fs.writeFileSync(file, JSON.stringify(categories, null, 2), "utf-8");
+  console.log(" Catégorie ajoutée :", cat);
+  return { success: true };
 });
+
 
 
 // Supprimer une catégorie
@@ -271,5 +292,38 @@ ipcMain.handle("open-book", async (_, fileRelativePath) => {
   }
 
   return true;
+});
+
+// ----------------------
+// 🗨️  GESTION COMMENTAIRES
+// ----------------------
+const commentairesPath = path.join(__dirname, "commentaires.json");
+
+// Atao azo antoka fa misy ilay fichier
+if (!fs.existsSync(commentairesPath)) {
+  fs.writeFileSync(commentairesPath, JSON.stringify([]));
+}
+
+// Maka ny commentaires rehetra amin'ilay livre iray
+ipcMain.handle("get-commentaires", async (_, titreLivre) => {
+  const data = fs.readFileSync(commentairesPath, "utf8");
+  const commentaires = JSON.parse(data);
+  return commentaires.filter(c => c.livre === titreLivre);
+});
+
+// Manampy commentaire vaovao
+ipcMain.handle("add-commentaire", async (_, commentaire) => {
+  try {
+    let data = [];
+    if (fs.existsSync(commentairesPath)) {
+      data = JSON.parse(fs.readFileSync(commentairesPath, "utf8"));
+    }
+    data.push(commentaire);
+    fs.writeFileSync(commentairesPath, JSON.stringify(data, null, 2));
+    return { success: true };
+  } catch (err) {
+    console.error("Erreur ajout commentaire:", err);
+    return { success: false };
+  }
 });
 

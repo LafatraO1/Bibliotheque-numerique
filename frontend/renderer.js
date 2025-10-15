@@ -3,6 +3,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resultsDiv = document.getElementById("results");
   const addBtn = document.getElementById("addBook");
 
+
+  // Charger les catégories dans le select
+  async function chargerCategories() {
+    const categories = await window.electronAPI.getCategories();
+    categorySelect.innerHTML = `<option value="">-- Toutes les catégories --</option>`;
+    categories.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.nom;
+      opt.textContent = c.nom;
+      categorySelect.appendChild(opt);
+    });
+  }
+  
   // Maka ny livres rehetra
   async function chargerLivres() {
     const livres = await window.electronAPI.getBooks();

@@ -3,6 +3,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resultsDiv = document.getElementById("results");
   const addBtn = document.getElementById("addBook");
 
+  
+  async function chargerCategories() {
+    const categorySelect = document.getElementById("categorySelect");
+    categorySelect.innerHTML = "<option value=''>-- Toutes les catégories --</option>";
+
+    const categories = await window.electronAPI.chargerCategories();
+    categories.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nom;
+      categorySelect.appendChild(opt);
+    });
+    
+  }
+
+  document.addEventListener("DOMContentLoaded" , () => {
+    chargerCategories();
+  });
+
   // Maka sy mamerina ny lisitry ny livres
   async function chargerLivres() {
     const livres = await window.electronAPI.getBooks();
