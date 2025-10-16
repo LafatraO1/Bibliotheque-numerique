@@ -43,5 +43,10 @@
     "titre": "PDF.pdf",
     "fichier": "livres/PDF.pdf",
     "categorie": "Non classé"
+  },
+  {
+    "titre": "scan_20250826094100.pdf",
+    "fichier": "livres/scan_20250826094100.pdf",
+    "categorie": "Non classé"
   }
 ]

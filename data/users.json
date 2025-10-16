@@ -1,0 +1,10 @@
+[
+  {
+    "id_u": 1,
+    "Nom_u": "Admin",
+    "Prénom_u": "Principal",
+    "Email_u": "admin@mail.com",
+    "Mdp_u": "admin123",
+    "Role": "admin"
+  }
+]
