@@ -171,16 +171,20 @@ ipcMain.handle("delete-book", async (_, fileRelativePath) => {
 ipcMain.handle("download-document", async (_, { id_d, fichier }) => {
   try {
     const src = path.join(__dirname, fichier);
+    // Verifier si le fichier existe
     if (!fs.existsSync(src)) {
       return { success: false, message: "Fichier introuvable" };
     }
-
+    // Fenètre de sauvegarde
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: "Enregistrer le livre",
       defaultPath: path.basename(src),
     });
 
-    if (canceled || !filePath) return { success: false, message: "Annulé" };
+    if (canceled || !filePath) {
+      console.log("Téléchargement annulé par l'utilisateur");
+      return { success: false, canceled: true };
+    }
 
     fs.copyFileSync(src, filePath);
 

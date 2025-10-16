@@ -2,58 +2,215 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Bibliothèque CDA</title>
+  <title>📚 Bibliothèque Numérique</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f4f4f9;
+      font-family: "Segoe UI", sans-serif;
+      background: #f2f5f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
     }
-    #searchInput {
-      width: 60%;
-      padding: 8px;
-      font-size: 16px;
-    }
-    #addBook {
-      padding: 8px 15px;
-      margin-left: 10px;
-      background: #34e76a;
+
+    header {
+      background: linear-gradient(135deg, #007bff, #00bcd4);
       color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
     }
-    .highlight { background: yellow; }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header h1::before {
+      content: "📚";
+      font-size: 26px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: white;
+      color: #007bff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #e3f2fd;
+      transform: scale(1.05);
+    }
+
+    .btn a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .toolbar {
+      background: white;
+      margin: 20px auto;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 900px;
+    }
+
+    #searchInput {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    #searchInput:focus {
+      border-color: #007bff;
+    }
+
+    #addBook {
+      margin-left: 15px;
+      background: #00c853;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    #addBook:hover {
+      background: #00a046;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 10px 25px 40px;
+    }
+
+    .livres-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
     .livre {
       background: white;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .deleteBtn {
-      float: right;
-      background: rgb(235, 4, 4);
-      color: white;
+
+    .livre:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .livre h3 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #007bff;
+    }
+
+    .livre p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .livre .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .deleteBtn, .downloadBtn {
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
+      color: white;
+      padding: 8px 10px;
       cursor: pointer;
+      font-size: 13px;
+      transition: 0.3s;
     }
+
+    .deleteBtn {
+      background: #ff5252;
+    }
+
+    .deleteBtn:hover {
+      background: #e04848;
+    }
+
+    .downloadBtn {
+      background: #00c853;
+    }
+
+    .downloadBtn:hover {
+      background: #009e42;
+    }
+
+    footer {
+      text-align: center;
+      color: #777;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .highlight { background: yellow; }
   </style>
 </head>
 <body>
-  <h1>📚 Bibliothèque-numerique</h1>
-  <div class="actions">
-    <input type="text" id="searchInput" placeholder="Rechercher un livre..." autofocus>
-    <button> <a href="login.html"> 🚪 Déconnexion</a></button><br>
-    <button id="addBook">➕ Ajouter</button>
-    
 
+  <header>
+    <h1>Bibliothèque Numérique</h1>
+    
+  </header>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher un livre par titre ou contenu..." autofocus>
+    <button id="addBook">➕ Ajouter</button>
+    <div class="header-buttons">
+      <button class="btn"><a href="login.html">🚪 Déconnexion</a></button>
+    </div>
   </div>
 
-  <div id="results" style="cursor: pointer;" ></div>
-
+  <div class="container">
+    <div id="results" style="cursor: pointer;"></div>
+  </div>
   <script src="../renderer.js"></script>
+
+  <footer>
+    © 2025 - Centre de Développement de l'Aquaculture 
+  </footer>
 
 </body>
 </html>

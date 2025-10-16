@@ -76,8 +76,13 @@ function afficherLivres(livres, query = "") {
       const id_d = e.target.getAttribute("data-id");
       const fichier = e.target.getAttribute("data-file");
       const res = await window.electronAPI.downloadDocument({ id_d, fichier });
-      if (res.success) alert("📥 Téléchargement réussi !");
-      else alert("Erreur: " + res.message);
+      if (res.success) {
+      // ✅ Notification seulement si réussite
+        new Notification("Téléchargement", { body: res.message });
+      } else if (!res.canceled && res.message) {
+        // ❌ Erreur réelle (tsy annulé)
+        new Notification("Erreur", { body: res.message });
+      }
     });
 
     div.querySelector(".deleteBtn").addEventListener("click", async (e) => {

@@ -5,100 +5,145 @@
   <title>Inscription</title>
   <style>
     body {
-      background-size: cover;
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      background: url('images/books-bg.jpg') no-repeat center center/cover;
+      position: relative;
     }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(3px);
+      z-index: 0;
+    }
+
     .form-container {
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 320px;
+      position: relative;
+      z-index: 1;
+      background-color: rgba(255, 255, 255, 0.93);
+      padding: 30px 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      width: 340px;
+      text-align: center;
+      animation: fadeIn 0.7s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     h1 {
-      color: #4CAF50;
-      text-align: center;
-      font-size: 18px;
+      color: #007bff;
+      font-size: 20px;
+      margin-bottom: 8px;
     }
+
     h2 {
-      text-align: center;
       margin-bottom: 20px;
+      color: #444;
     }
+
     .form-group {
       margin-bottom: 15px;
+      text-align: left;
     }
+
     .form-group label {
       display: block;
       margin-bottom: 5px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
     }
+
     .form-group input {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    footer {
-      text-align: center;
-      color: #090808ff;
       padding: 10px;
-      margin-top: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.3s;
     }
+
+    .form-group input:focus {
+      border-color: #007bff;
+    }
+
     .btn {
       width: 100%;
       padding: 10px;
-      background-color: #4CAF50;
+      background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
     }
+
     .btn:hover {
-      background-color: #45a049;
+      background-color: #005ecb;
+      transform: scale(1.02);
     }
+
     #msg {
       text-align: center;
       margin-top: 10px;
       font-weight: bold;
     }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+
   <div class="form-container">
     <h1>Centre de Développement de l'Aquaculture</h1>
     <h2>Créer un compte</h2>
+
     <form id="registerForm">
       <div class="form-group">
         <label for="nom">Nom :</label>
-        <input type="text" id="nom" name="nom" required />
+        <input type="text" id="nom" required />
       </div>
 
       <div class="form-group">
         <label for="prenom">Prénom :</label>
-        <input type="text" id="prenom" name="prenom" required />
+        <input type="text" id="prenom" required />
       </div>
 
       <div class="form-group">
         <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required />
+        <input type="email" id="email" required />
       </div>
 
       <div class="form-group">
         <label for="mot_de_passe">Mot de passe :</label>
-        <input type="password" id="mot_de_passe" name="mot_de_passe" required />
+        <input type="password" id="mot_de_passe" required />
       </div>
 
       <button type="submit" class="btn">S'inscrire</button>
       <p id="msg"></p>
     </form>
 
-    <p style="text-align:center;">Déjà inscrit ? <a href="login.html">Se connecter</a></p>
+    <p>Déjà inscrit ? <a href="login.html">Se connecter</a></p>
   </div>
 
   <script>
@@ -110,9 +155,9 @@
       const prenom = document.getElementById("prenom").value.trim();
       const email = document.getElementById("email").value.trim();
       const mot_de_passe = document.getElementById("mot_de_passe").value;
-
       const msgEl = document.getElementById("msg");
-      msgEl.textContent = "Enregistrement en cours...";
+
+      msgEl.textContent = "Enregistrement...";
       msgEl.style.color = "#333";
 
       try {
@@ -133,17 +178,13 @@
         msgEl.textContent = data.message || "Inscription réussie !";
         msgEl.style.color = "green";
 
-        // redirection automatique après 1 seconde
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1000);
-
-      } catch (err) {
-        console.error(err);
-        msgEl.textContent = "Erreur de connexion au serveur.";
+        setTimeout(() => window.location.href = "login.html", 1000);
+      } catch {
+        msgEl.textContent = "Erreur serveur.";
         msgEl.style.color = "crimson";
       }
     });
   </script>
+
 </body>
 </html>
