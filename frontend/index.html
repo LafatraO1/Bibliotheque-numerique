@@ -122,10 +122,10 @@
 
     .livre {
       background: white;
+      margin: 15px;
       border-radius: 10px;
       padding: 15px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-      position: relative;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
@@ -140,43 +140,63 @@
       color: #007bff;
     }
 
-    .livre p {
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 10px;
-    }
-
-    .livre .actions {
+    .actions {
       display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
     }
 
-    .deleteBtn, .downloadBtn {
-      border: none;
-      border-radius: 6px;
+    .openBtn, .downloadBtn, .deleteBtn {
+      flex: 1;
+      text-align: center;
+      padding: 10px 12px;
       color: white;
-      padding: 8px 10px;
+      font-weight: 600;
+      border: none;
+      border-radius: 25px;
       cursor: pointer;
-      font-size: 13px;
-      transition: 0.3s;
+      transition: all 0.25s ease-in-out;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .deleteBtn {
-      background: #ff5252;
+    .openBtn {
+      background: #007bff;
     }
-
-    .deleteBtn:hover {
-      background: #e04848;
+    .openBtn:hover {
+      background: #0066d1;
+      transform: scale(1.05);
     }
 
     .downloadBtn {
       background: #00c853;
     }
-
     .downloadBtn:hover {
-      background: #009e42;
+      background: #00a046;
+      transform: scale(1.05);
     }
+
+    .deleteBtn {
+      background: #ff5252;
+    }
+    .deleteBtn:hover {
+      background: #e04848;
+      transform: scale(1.05);
+    }
+
+    .pagination button.active {
+      background: linear-gradient(135deg, #00e676, #00c853);
+      color: white;
+      border: none;
+      font-weight: bold;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0, 200, 83, 0.4);
+      transform: scale(0.97);
+      transition: all 0.25s ease-in-out;
+    }
+
 
     footer {
       text-align: center;
@@ -185,14 +205,15 @@
       font-size: 13px;
     }
 
-    .highlight { background: yellow; }
+    .highlight {
+      background: yellow;
+    }
   </style>
 </head>
 <body>
 
   <header>
     <h1>Bibliothèque Numérique</h1>
-    
   </header>
 
   <div class="toolbar">
@@ -204,13 +225,16 @@
   </div>
 
   <div class="container">
-    <div id="results" style="cursor: pointer;"></div>
-  </div>
-  <script src="../renderer.js"></script>
+    <div id="results"></div>
+    <div id="totalLivres"></div>
+</div>
+
+
 
   <footer>
     © 2025 - Centre de Développement de l'Aquaculture 
   </footer>
 
+  <script src="../renderer.js"></script>
 </body>
 </html>
