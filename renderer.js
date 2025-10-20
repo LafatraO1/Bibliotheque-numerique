@@ -27,14 +27,24 @@ function highlightText(texte, mot) {
   return texte.replace(regex, `<mark class="bg-yellow-300 text-black">$1</mark>`);
 }
 
-// === Total des livres ===
+// === Total des livres (page activée)
 function mettreAJourTotalLivres() {
   const totalElement = document.getElementById("totalLivres");
-  const total = allBooks.length;
+
+  const totalPage = Math.min(livresParPage, allBooks.length - (currentPage - 1) * livresParPage);
   if (totalElement) {
     totalElement.innerHTML = `
-      <div class="text-center mt-4 text-lg font-semibold text-gray-800 bg-blue-100 inline-block px-4 py-2 rounded-full shadow-sm">
-        📚 Total livres : ${total}
+      <div style="
+        text-align: center;
+        
+        font-weight: 600;
+        color: #333;
+        font-size: 16px;
+        color: black;
+        display: inline-block;
+        padding: 10px 20px;
+      ">
+         Total livres : ${totalPage}
       </div>
     `;
   }

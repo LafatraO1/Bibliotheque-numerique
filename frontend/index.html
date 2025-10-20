@@ -186,15 +186,54 @@
       transform: scale(1.05);
     }
 
+    .pagination-container {
+      display: flex;
+      justify-content: left;  
+      align-items: center;       
+      gap: 200px;                
+      margin-top: -3pc;         
+      flex-wrap: wrap;          
+    }
+
+    #totalLivres {
+      background: none;          
+      color: #222;              
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: 80pc;
+      justify-content: center;
+      margin-left: 80px;
+      margin-top: 32px;
+    }
+    
+
+    .pagination {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      
+    }
+
+    .pagination button {
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .pagination button:hover {
+      background: #f1f1f1;
+    }
+
     .pagination button.active {
       background: linear-gradient(135deg, #00e676, #00c853);
       color: white;
       border: none;
       font-weight: bold;
-      border-radius: 10px;
       box-shadow: 0 3px 8px rgba(0, 200, 83, 0.4);
-      transform: scale(0.97);
-      transition: all 0.25s ease-in-out;
     }
 
 
@@ -226,8 +265,12 @@
 
   <div class="container">
     <div id="results"></div>
-    <div id="totalLivres"></div>
-</div>
+    
+  </div>
+  <div class="pagination-container">
+    <div id="totalLivres"> Total livres : 0</div>
+    <div class="pagination" id="pagination"></div>
+  </div>
 
 
 
