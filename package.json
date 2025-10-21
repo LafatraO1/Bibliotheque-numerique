@@ -10,7 +10,8 @@
   "author": "Lafatra Hariliva",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^38.1.2"
+    "electron": "^38.1.2",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

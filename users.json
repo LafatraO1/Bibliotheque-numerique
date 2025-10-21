@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id_u": 1,
+    "nom": "Admin",
+    "email": "admin@gmail.com",
+    "password": "aaaa"
+  }
+]

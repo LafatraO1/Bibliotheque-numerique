@@ -170,6 +170,18 @@ app.delete("/livres/:id", (req, res) => {
   });
 });
 
-// LANCEMENT SERVEUR
+// EXPORT POUR ELECTRON
 const PORT = 5000;
-app.listen(PORT, () => console.log(` Serveur SQLite lancé sur http://localhost:${PORT}`));
+
+function startServer() {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`✅ Serveur SQLite lancé sur http://localhost:${PORT}`);
+  });
+}
+
+// Si lancé directement avec "node server.js", démarre automatiquement
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { startServer };

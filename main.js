@@ -3,10 +3,27 @@ const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("node:path");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
+const express = require("express");
+const { startServer } = require("./backend/server");
+startServer();
 
 // Variables globales
 let mainWindow;
 let currentUser = null;
+
+// ============================
+// SERVEUR EXPRESS (Backend)
+// ============================
+const backendApp = express();
+const backendPort = 3000; // port interne
+const frontendPath = path.join(__dirname, "frontend");
+
+// Sert les fichiers frontend depuis Electron
+backendApp.use(express.static(frontendPath));
+
+const backendServer = backendApp.listen(backendPort, () => {
+  console.log(`✅ Serveur backend lancé sur http://localhost:${backendPort}`);
+});
 
 // Chemins importants
 const livresFolder = path.join(__dirname, "livres");
