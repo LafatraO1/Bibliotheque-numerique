@@ -2,13 +2,46 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const sqlite3 = require('sqlite3').verbose();
+const path = require("path");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// CONNEXION BD
-const db = new sqlite3.Database('./data/bibliotheque.db');
+
+// ==============================
+// BASE DE DONNÉES (chemin fiable)
+// ==============================
+const fs = require("fs");
+
+// Vérifie si l’app est packagée (build) ou non
+const isPackaged = process.mainModule && process.mainModule.filename.indexOf("app.asar") !== -1;
+
+// Détermine le chemin de la base selon le mode
+const dbFolder = isPackaged
+  ? path.join(process.resourcesPath, "data") // 📦 en version buildée
+  : path.join(__dirname, "data"); // 💻 en développement
+
+const dbPath = path.join(dbFolder, "bibliotheque.db");
+
+// Crée le dossier /data si besoin
+if (!fs.existsSync(dbFolder)) {
+  fs.mkdirSync(dbFolder, { recursive: true });
+}
+
+// Affiche le chemin pour vérifier
+console.log("📁 Base de données utilisée :", dbPath);
+
+// Connexion à SQLite
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error("❌ Erreur BD :", err.message);
+  } else {
+    console.log("✅ Base SQLite connectée avec succès !");
+  }
+});
+
+
 
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS utilisateurs (
@@ -174,14 +207,9 @@ app.delete("/livres/:id", (req, res) => {
 const PORT = 5000;
 
 function startServer() {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`✅ Serveur SQLite lancé sur http://localhost:${PORT}`);
+  app.listen(PORT, () => {
+    console.log(` Serveur SQLite lancé sur http://localhost:${PORT}`);
   });
-}
-
-// Si lancé directement avec "node server.js", démarre automatiquement
-if (require.main === module) {
-  startServer();
 }
 
 module.exports = { startServer };

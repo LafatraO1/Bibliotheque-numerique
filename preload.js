@@ -14,5 +14,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openBook: (file) => ipcRenderer.invoke("open-book", file),
 
   // Téléchargement
-  downloadDocument: (doc) => ipcRenderer.invoke("download-document", doc),
+  downloadDocument: (doc) => ipcRenderer.invoke("download-document", doc),  
 });
+// Vérifier le chargement
+window.addEventListener("DOMContentLoaded", () => {
+  console.log(" Bibliothèque chargé !");
+});
+

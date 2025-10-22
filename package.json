@@ -1,16 +1,19 @@
 {
-  "name": "electonapp",
+  "name": "bibliotheque-numerique",
   "version": "1.0.0",
+  "description": "Bibliothèque Numérique",
   "main": "main.js",
   "scripts": {
     "start": " electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "electron-builder",
+    "dist": "electron-builder"
   },
   "keywords": [],
   "author": "Lafatra Hariliva",
   "license": "ISC",
   "devDependencies": {
     "electron": "^38.1.2",
+    "electron-build": "^0.0.3",
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
@@ -22,5 +25,44 @@
     "pdfjs-dist": "^5.4.149",
     "sqlite3": "^5.1.7"
   },
-  "description": ""
+  "build": {
+    "appId": "com.biblio.plus",
+    "productName": "Biblio+",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "backend/**/*",
+      "frontend/**/*",
+      "data/**/*",
+      "livres/**/*",
+      "users.json",
+      "telechargements.json",
+      "categories.json",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "data/",
+        "to": "data"
+      },
+      {
+        "from": "livres/",
+        "to": "livres"
+      }
+    ],
+    "win": {
+      "icon": "frontend/assets/Biblio+.ico",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Biblio+"
+    }
+  }
 }
